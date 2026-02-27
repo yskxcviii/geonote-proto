@@ -1,218 +1,462 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GeoNote (Prototype)</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GeoNote (Prototype)</title>
-  <link rel="stylesheet" href="index.css">
-</head>
-
-<body>
-
-  <div id="apiOverlay" class="overlay">
-    <div class="overlay-card">
-      <h2>Getting Started</h2>
-      <p>
-        地図を表示するには Google Maps API キーが必要です。<br>
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">
-          Google Cloud Console
-        </a> から Maps JavaScript API のキーを取得してください。
-      </p>
-      <div class="input-group">
-        <input type="text" id="apiKeyInput" placeholder="APIキーを入力">
-      </div>
-      <button class="btn-primary" onclick="loadMapsAPI()">マップを読み込む</button>
-    </div>
-  </div>
-
-  <div id="map"></div>
-
-  <div id="panel" class="panel">
-    <div class="panel-header">
-      <div class="panel-title-row">
-        <h3>GeoNote (Prototype)</h3>
-        <button class="settings-btn" onclick="openSettings()" title="設定">&#9881;</button>
-      </div>
-      <p class="sub">行政区域 + 鉄道路線図 + 駅</p>
-    </div>
-    <div class="panel-body">
-
-      <div class="accordion">
-        <div class="accordion-header collapsed" onclick="toggleAccordion(this)">
-          <span class="accordion-arrow">&#9660;</span>
-          <span>入力ソース</span>
+  <body>
+    <div id="apiOverlay" class="overlay">
+      <div class="overlay-card">
+        <h2>Getting Started</h2>
+        <p>
+          地図を表示するには Google Maps API キーが必要です。<br />
+          <a
+            href="https://console.cloud.google.com/apis/credentials"
+            target="_blank"
+            rel="noopener"
+          >
+            Google Cloud Console
+          </a>
+          から Maps JavaScript API のキーを取得してください。
+        </p>
+        <div class="input-group">
+          <input type="text" id="apiKeyInput" placeholder="APIキーを入力" />
         </div>
-        <div class="accordion-content">
-          <div class="accordion-content-inner">
-            <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:6px;">行政区域</div>
-            <input type="file" id="fileInput" accept=".geojson,.json" style="display:none">
-            <button class="btn-file" onclick="document.getElementById('fileInput').click()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <polyline points="17 8 12 3 7 8" />
-                <line x1="12" y1="3" x2="12" y2="15" />
-              </svg>
-              GeoJSON を選択
-            </button>
-            <button class="btn-drive" onclick="fetchAdminFromDrive()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-              Google Drive から取得
-            </button>
-            <div id="status" class="file-status"></div>
+        <button class="btn-primary" onclick="loadMapsAPI()">
+          マップを読み込む
+        </button>
+      </div>
+    </div>
 
-            <div style="border-top:1px solid #eee;margin-top:10px;padding-top:10px;">
-              <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:6px;">鉄道路線</div>
-              <input type="file" id="railwayInput" accept=".geojson,.json" multiple style="display:none">
-              <button class="btn-file" style="background:#e8511a;"
-                onclick="document.getElementById('railwayInput').click()" onmouseover="this.style.background='#c2440f'"
-                onmouseout="this.style.background='#e8511a'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="4" y="3" width="16" height="18" rx="2" />
-                  <line x1="12" y1="8" x2="12" y2="16" />
-                  <line x1="8" y1="12" x2="16" y2="12" />
+    <div id="map"></div>
+
+    <div id="panel" class="panel">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <h3>GeoNote (Prototype)</h3>
+          <button class="settings-btn" onclick="openSettings()" title="設定">
+            &#9881;
+          </button>
+        </div>
+        <p class="sub">行政区域 + 鉄道路線図 + 駅</p>
+      </div>
+      <div class="panel-body">
+        <div class="accordion">
+          <div
+            class="accordion-header collapsed"
+            onclick="toggleAccordion(this)"
+          >
+            <span class="accordion-arrow">&#9660;</span>
+            <span>入力ソース</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <div
+                style="
+                  font-size: 12px;
+                  font-weight: 600;
+                  color: #666;
+                  margin-bottom: 6px;
+                "
+              >
+                行政区域
+              </div>
+              <input
+                type="file"
+                id="fileInput"
+                accept=".geojson,.json"
+                style="display: none"
+              />
+              <button
+                class="btn-file"
+                onclick="document.getElementById('fileInput').click()"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="17 8 12 3 7 8" />
+                  <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
-                GeoJSON を選択 (複数可)
+                GeoJSON を選択
               </button>
-              <button class="btn-drive" onclick="fetchRailwayFromDrive()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
+              <button class="btn-drive" onclick="fetchAdminFromDrive()">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M12 5v14M5 12l7-7 7 7" />
+                </svg>
                 Google Drive から取得
               </button>
-              <div id="railwayStatus" class="file-status"></div>
+              <div id="status" class="file-status"></div>
+
+              <div
+                style="
+                  border-top: 1px solid #eee;
+                  margin-top: 10px;
+                  padding-top: 10px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #666;
+                    margin-bottom: 6px;
+                  "
+                >
+                  鉄道路線
+                </div>
+                <input
+                  type="file"
+                  id="railwayInput"
+                  accept=".geojson,.json"
+                  multiple
+                  style="display: none"
+                />
+                <button
+                  class="btn-file"
+                  style="background: #e8511a"
+                  onclick="document.getElementById('railwayInput').click()"
+                  onmouseover="this.style.background = '#c2440f'"
+                  onmouseout="this.style.background = '#e8511a'"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <rect x="4" y="3" width="16" height="18" rx="2" />
+                    <line x1="12" y1="8" x2="12" y2="16" />
+                    <line x1="8" y1="12" x2="16" y2="12" />
+                  </svg>
+                  GeoJSON を選択 (複数可)
+                </button>
+                <button class="btn-drive" onclick="fetchRailwayFromDrive()">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 5v14M5 12l7-7 7 7" />
+                  </svg>
+                  Google Drive から取得
+                </button>
+                <div id="railwayStatus" class="file-status"></div>
+              </div>
+
+              <div
+                style="
+                  border-top: 1px solid #eee;
+                  margin-top: 10px;
+                  padding-top: 10px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #666;
+                    margin-bottom: 6px;
+                  "
+                >
+                  駅
+                </div>
+                <input
+                  type="file"
+                  id="stationInput"
+                  accept=".geojson,.json"
+                  multiple
+                  style="display: none"
+                />
+                <button
+                  class="btn-file"
+                  style="background: #2e7d32"
+                  onclick="document.getElementById('stationInput').click()"
+                  onmouseover="this.style.background = '#1b5e20'"
+                  onmouseout="this.style.background = '#2e7d32'"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <circle cx="12" cy="10" r="3" />
+                    <path
+                      d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"
+                    />
+                  </svg>
+                  GeoJSON を選択 (複数可)
+                </button>
+                <button class="btn-drive" onclick="fetchStationFromDrive()">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path d="M12 5v14M5 12l7-7 7 7" />
+                  </svg>
+                  Google Drive から取得
+                </button>
+                <div id="stationStatus" class="file-status"></div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <div style="border-top:1px solid #eee;margin-top:10px;padding-top:10px;">
-              <div style="font-size:12px;font-weight:600;color:#666;margin-bottom:6px;">駅</div>
-              <input type="file" id="stationInput" accept=".geojson,.json" multiple style="display:none">
-              <button class="btn-file" style="background:#2e7d32;"
-                onclick="document.getElementById('stationInput').click()" onmouseover="this.style.background='#1b5e20'"
-                onmouseout="this.style.background='#2e7d32'">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="10" r="3" />
-                  <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
+        <div id="legendArea"></div>
+        <div id="railwayArea"></div>
+
+        <div class="accordion">
+          <div class="accordion-header" onclick="toggleAccordion(this)">
+            <span class="accordion-arrow">&#9660;</span>
+            <span id="markerSectionTitle">マーカー</span>
+          </div>
+          <div class="accordion-content">
+            <div class="accordion-content-inner">
+              <button
+                class="btn-file"
+                style="background: #5856d6"
+                onclick="openMarkerModal()"
+                onmouseover="this.style.background = '#4240a8'"
+                onmouseout="this.style.background = '#5856D6'"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                GeoJSON を選択 (複数可)
+                マーカーを追加
               </button>
-              <button class="btn-drive" onclick="fetchStationFromDrive()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7-7 7 7"/></svg>
-                Google Drive から取得
-              </button>
-              <div id="stationStatus" class="file-status"></div>
+              <div id="markerList"></div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <div id="legendArea"></div>
-      <div id="railwayArea"></div>
-
-      <div class="accordion">
-        <div class="accordion-header" onclick="toggleAccordion(this)">
-          <span class="accordion-arrow">&#9660;</span>
-          <span id="markerSectionTitle">マーカー</span>
+    <div id="settingsModal" class="settings-overlay hidden">
+      <div class="settings-card">
+        <h3>&#9881; Google Drive 設定</h3>
+        <p style="font-size: 12px; color: #888; margin: -10px 0 16px 0">
+          Google Drive
+          の共有URLを保存すると、次回以降は自動的に読み込みます。<br />
+          ファイル/フォルダは「リンクを知っている全員」に共有してください。<br />
+          Google Cloud Console で
+          <strong>Google Drive API</strong> も有効化してください。
+        </p>
+        <div class="settings-field">
+          <label>行政区域 GeoJSON (ファイルURL)</label>
+          <input
+            type="text"
+            id="sAdminUrl"
+            placeholder="https://drive.google.com/file/d/xxxxx/view?usp=sharing"
+          />
         </div>
-        <div class="accordion-content">
-          <div class="accordion-content-inner">
-            <button class="btn-file" style="background:#5856D6;" onclick="openMarkerModal()"
-              onmouseover="this.style.background='#4240a8'" onmouseout="this.style.background='#5856D6'">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-              </svg>
-              マーカーを追加
+        <div class="settings-field">
+          <label>鉄道路線 GeoJSON (フォルダURL)</label>
+          <input
+            type="text"
+            id="sRailwayUrl"
+            placeholder="https://drive.google.com/drive/folders/xxxxx?usp=sharing"
+          />
+          <div class="settings-hint">フォルダ内の *.geojson を自動検索</div>
+        </div>
+        <div class="settings-field">
+          <label>駅 GeoJSON (フォルダURL)</label>
+          <input
+            type="text"
+            id="sStationUrl"
+            placeholder="https://drive.google.com/drive/folders/xxxxx?usp=sharing"
+          />
+          <div class="settings-hint">フォルダ内の *.geojson を自動検索</div>
+        </div>
+        <div
+          style="
+            margin-top: 16px;
+            border-top: 1px solid #eee;
+            padding-top: 14px;
+          "
+        >
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              margin-bottom: 8px;
+            "
+          >
+            <label style="font-size: 13px; font-weight: 600; color: #333"
+              >キャッシュ管理</label
+            >
+            <button
+              id="clearAllCacheBtn"
+              class="btn-cancel"
+              onclick="clearAllCache()"
+              style="
+                flex: none;
+                width: auto;
+                padding: 4px 10px;
+                font-size: 11px;
+                color: #d32f2f;
+                border-color: #d32f2f;
+                display: none;
+              "
+            >
+              全削除
             </button>
-            <div id="markerList"></div>
           </div>
+          <div id="cacheList" style="max-height: 200px; overflow-y: auto"></div>
+        </div>
+        <div class="settings-actions">
+          <button class="btn-save" onclick="saveSettings()">
+            保存して読み込み
+          </button>
+          <button class="btn-cancel" onclick="closeSettings()">
+            キャンセル
+          </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <div id="settingsModal" class="settings-overlay hidden">
-    <div class="settings-card">
-      <h3>&#9881; Google Drive 設定</h3>
-      <p style="font-size:12px;color:#888;margin:-10px 0 16px 0;">
-        Google Drive の共有URLを保存すると、次回以降は自動的に読み込みます。<br>
-        ファイル/フォルダは「リンクを知っている全員」に共有してください。<br>
-        Google Cloud Console で <strong>Google Drive API</strong> も有効化してください。
-      </p>
-      <div class="settings-field">
-        <label>行政区域 GeoJSON (ファイルURL)</label>
-        <input type="text" id="sAdminUrl" placeholder="https://drive.google.com/file/d/xxxxx/view?usp=sharing">
-      </div>
-      <div class="settings-field">
-        <label>鉄道路線 GeoJSON (フォルダURL)</label>
-        <input type="text" id="sRailwayUrl" placeholder="https://drive.google.com/drive/folders/xxxxx?usp=sharing">
-        <div class="settings-hint">フォルダ内の *.geojson を自動検索</div>
-      </div>
-      <div class="settings-field">
-        <label>駅 GeoJSON (フォルダURL)</label>
-        <input type="text" id="sStationUrl" placeholder="https://drive.google.com/drive/folders/xxxxx?usp=sharing">
-        <div class="settings-hint">フォルダ内の *.geojson を自動検索</div>
-      </div>
-      <div style="margin-top:16px;border-top:1px solid #eee;padding-top:14px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <label style="font-size:13px;font-weight:600;color:#333;">キャッシュ管理</label>
-          <button id="clearAllCacheBtn" class="btn-cancel" onclick="clearAllCache()"
-            style="flex:none;width:auto;padding:4px 10px;font-size:11px;color:#d32f2f;border-color:#d32f2f;display:none;">全削除</button>
+    <div id="markerModal" class="settings-overlay hidden">
+      <div class="settings-card" style="max-width: 440px">
+        <h3 id="markerModalTitle">マーカーを追加</h3>
+        <input type="hidden" id="mEditId" />
+        <div class="settings-field">
+          <label>住所 または 座標 (緯度, 経度)</label>
+          <div style="display: flex; gap: 6px">
+            <input
+              type="text"
+              id="mAddress"
+              placeholder="東京都千代田区... / 35.6762, 139.6503"
+              style="flex: 1"
+              onkeydown="if (event.key === 'Enter') searchMarkerAddress();"
+            />
+            <button
+              class="btn-save"
+              onclick="searchMarkerAddress()"
+              style="
+                flex: none;
+                width: auto;
+                padding: 8px 14px;
+                font-size: 12px;
+              "
+            >
+              検索
+            </button>
+          </div>
+          <div
+            id="mCoordResult"
+            style="
+              font-size: 11px;
+              color: #888;
+              margin-top: 3px;
+              min-height: 16px;
+            "
+          ></div>
         </div>
-        <div id="cacheList" style="max-height:200px;overflow-y:auto;"></div>
-      </div>
-      <div class="settings-actions">
-        <button class="btn-save" onclick="saveSettings()">保存して読み込み</button>
-        <button class="btn-cancel" onclick="closeSettings()">キャンセル</button>
+        <div class="settings-field">
+          <label>タイトル (最大64文字)</label>
+          <input
+            type="text"
+            id="mTitle"
+            maxlength="64"
+            placeholder="マーカー名"
+          />
+        </div>
+        <div class="settings-field">
+          <label>カラー</label>
+          <div
+            id="mColorPicker"
+            style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px"
+          ></div>
+        </div>
+        <div class="settings-field">
+          <label>メモ (最大480文字)</label>
+          <textarea
+            id="mMemo"
+            maxlength="480"
+            rows="3"
+            style="
+              width: 100%;
+              padding: 9px 12px;
+              border: 1.5px solid #ddd;
+              border-radius: 7px;
+              font-size: 12px;
+              font-family: inherit;
+              resize: vertical;
+              transition: border-color 0.2s;
+            "
+            onfocus="this.style.borderColor = '#1a73e8'"
+            onblur="this.style.borderColor = '#ddd'"
+          ></textarea>
+        </div>
+        <div class="settings-actions">
+          <button class="btn-save" onclick="saveMarkerForm()">保存</button>
+          <button class="btn-cancel" onclick="closeMarkerModal()">
+            キャンセル
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <div id="markerModal" class="settings-overlay hidden">
-    <div class="settings-card" style="max-width:440px;">
-      <h3 id="markerModalTitle">マーカーを追加</h3>
-      <input type="hidden" id="mEditId">
-      <div class="settings-field">
-        <label>住所 または 座標 (緯度, 経度)</label>
-        <div style="display:flex;gap:6px;">
-          <input type="text" id="mAddress" placeholder="東京都千代田区... / 35.6762, 139.6503" style="flex:1;"
-            onkeydown="if(event.key==='Enter')searchMarkerAddress()">
-          <button class="btn-save" onclick="searchMarkerAddress()"
-            style="flex:none;width:auto;padding:8px 14px;font-size:12px;">検索</button>
-        </div>
-        <div id="mCoordResult" style="font-size:11px;color:#888;margin-top:3px;min-height:16px;"></div>
-      </div>
-      <div class="settings-field">
-        <label>タイトル (最大64文字)</label>
-        <input type="text" id="mTitle" maxlength="64" placeholder="マーカー名">
-      </div>
-      <div class="settings-field">
-        <label>カラー</label>
-        <div id="mColorPicker" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"></div>
-      </div>
-      <div class="settings-field">
-        <label>メモ (最大480文字)</label>
-        <textarea id="mMemo" maxlength="480" rows="3"
-          style="width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:7px;font-size:12px;font-family:inherit;resize:vertical;transition:border-color 0.2s;"
-          onfocus="this.style.borderColor='#1a73e8'" onblur="this.style.borderColor='#ddd'"></textarea>
-      </div>
-      <div class="settings-actions">
-        <button class="btn-save" onclick="saveMarkerForm()">保存</button>
-        <button class="btn-cancel" onclick="closeMarkerModal()">キャンセル</button>
-      </div>
+    <div id="info-bar">
+      <h4 id="infoName"></h4>
+      <p id="infoDetail"></p>
+      <p
+        id="infoMemo"
+        style="
+          display: none;
+          margin-top: 4px;
+          color: #666;
+          font-size: 12px;
+          white-space: pre-wrap;
+          max-height: 120px;
+          overflow-y: auto;
+          text-align: left;
+        "
+      ></p>
     </div>
-  </div>
 
-  <div id="info-bar">
-    <h4 id="infoName"></h4>
-    <p id="infoDetail"></p>
-    <p id="infoMemo" style="display:none;margin-top:4px;color:#666;font-size:12px;white-space:pre-wrap;max-height:120px;overflow-y:auto;text-align:left;"></p>
-  </div>
+    <div id="mapTooltip" class="map-tooltip"></div>
 
-  <div id="mapTooltip" class="map-tooltip"></div>
+    <div id="loader" class="loader-wrap">
+      <div class="spinner"></div>
+      <p id="loaderText">読み込み中...</p>
+    </div>
 
-  <div id="loader" class="loader-wrap">
-    <div class="spinner"></div>
-    <p id="loaderText">読み込み中...</p>
-  </div>
-
-  <script src="index.js"></script>
-</body>
-
+    <script src="index.js"></script>
+  </body>
 </html>
